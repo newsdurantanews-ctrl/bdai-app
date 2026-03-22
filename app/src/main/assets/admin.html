@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>BDAi Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@300;400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07070f;--bg2:#0d0d1a;--bg3:#111120;
+  --card:#141428;--sur:#1a1a30;--sur2:#262645;
+  --b:#1e1e38;--b2:#262645;
+  --acc:#00d4aa;--acc2:#0099ff;
+  --org:#c96e3f;--org2:#e8956a;
+  --txt:#dde0f5;--mut:#56568a;
+  --gold:#f59e0b;--red:#ff4060;--yellow:#ffaa00;
+  --font:'Noto Sans Bengali',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--font);background:var(--bg);height:100vh;display:flex;flex-direction:column;overflow:hidden;color:var(--txt)}
+
+/* TOP */
+.atb{height:50px;background:var(--bg2);border-bottom:1px solid var(--b);display:flex;align-items:center;padding:0 14px;gap:9px;flex-shrink:0}
+.atb-logo{width:28px;height:28px;object-fit:contain}
+.atb-name{font-family:'Sora',sans-serif;font-weight:700;font-size:14px;flex:1}
+.role-tag{font-size:9px;padding:2px 9px;border-radius:10px;font-weight:700;border:1px solid}
+.rt-sa{background:rgba(245,158,11,.15);color:var(--gold);border-color:rgba(245,158,11,.3)}
+.rt-a{background:rgba(0,212,170,.15);color:var(--acc);border-color:rgba(0,212,170,.3)}
+.rt-d{background:rgba(0,153,255,.15);color:var(--acc2);border-color:rgba(0,153,255,.3)}
+
+/* PANELS */
+.panels{flex:1;overflow:hidden}
+.panel{display:none;height:100%;flex-direction:column}
+.panel.on{display:flex}
+.pbody{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.pbody::-webkit-scrollbar{width:2px}
+.pbody::-webkit-scrollbar-thumb{background:var(--b2)}
+
+/* SECTIONS */
+.sec-head{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;padding:11px 14px 5px;border-top:1px solid var(--b)}
+.arow{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--b);cursor:pointer;transition:background .15s}
+.arow:active{background:rgba(255,255,255,.03)}
+.ar-ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ar-main{flex:1}
+.ar-title{font-size:13px;font-weight:500}
+.ar-sub{font-size:10.5px;color:var(--mut);margin-top:1.5px}
+
+/* STATS */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:12px}
+.sbox{background:var(--card);border:1px solid var(--b2);border-radius:12px;padding:13px;text-align:center}
+.snum{font-family:'Sora',sans-serif;font-size:20px;font-weight:800}
+.slbl{font-size:9.5px;color:var(--mut);margin-top:2px}
+
+/* BADGES */
+.badge{display:inline-flex;padding:2px 8px;border-radius:7px;font-size:10px;font-weight:700}
+.b-g{background:rgba(0,212,170,.15);color:var(--acc)}
+.b-y{background:rgba(255,170,0,.15);color:var(--yellow)}
+.b-r{background:rgba(255,64,96,.15);color:var(--red)}
+.b-b{background:rgba(0,153,255,.15);color:var(--acc2)}
+.b-go{background:rgba(245,158,11,.15);color:var(--gold)}
+
+/* FORM */
+.aform{padding:12px 14px}
+.ainp,.asel,.ata{width:100%;background:var(--bg2);border:1px solid var(--b);border-radius:9px;padding:9px 12px;color:var(--txt);font-family:var(--font);font-size:12.5px;outline:none;margin-bottom:9px;transition:border-color .2s}
+.ainp:focus,.asel:focus,.ata:focus{border-color:var(--acc)}
+.ata{resize:vertical;min-height:60px}
+.abtn{width:100%;padding:10px;border:none;border-radius:10px;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px;transition:all .2s}
+.ab-acc{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#000}
+.ab-gold{background:linear-gradient(135deg,var(--gold),var(--org2));color:#000}
+.ab-red{background:rgba(255,64,96,.15);border:1px solid rgba(255,64,96,.3);color:var(--red)}
+.ab-out{background:none;border:1px solid var(--b2);color:var(--txt)}
+
+/* TOGGLE */
+.atog{width:40px;height:22px;border-radius:11px;cursor:pointer;position:relative;transition:background .3s;border:none;flex-shrink:0}
+.atog.on{background:var(--acc)}
+.atog.off{background:var(--b2)}
+.atog::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:2px;transition:left .3s}
+.atog.on::after{left:20px}
+.atog.off::after{left:2px}
+
+/* PAYMENT CARD */
+.pmc{background:var(--card);border:1px solid var(--b2);border-radius:12px;padding:13px;margin-bottom:9px}
+.pmc-h{display:flex;align-items:center;gap:9px;margin-bottom:5px}
+.pmc-ic{font-size:20px}
+.pmc-name{font-size:13px;font-weight:600;flex:1}
+.pmc-num{font-size:12.5px;color:var(--acc);font-weight:700;margin-bottom:2px}
+.pmc-holder{font-size:11px;color:var(--mut)}
+.pmc-acts{display:flex;gap:7px;margin-top:9px}
+.pmc-btn{padding:5px 12px;border-radius:7px;cursor:pointer;font-size:11px;font-family:var(--font);border:1px solid;transition:all .2s}
+
+/* KNOWLEDGE ITEM */
+.kbi{background:var(--bg2);border:1px solid var(--b2);border-radius:10px;padding:12px;margin-bottom:9px}
+.kbq{font-size:11px;color:var(--yellow);font-weight:600;margin-bottom:6px}
+.kba{font-size:11px;color:var(--mut)}
+
+/* BOTTOM NAV */
+.adbnav{height:54px;background:var(--bg2);border-top:1px solid var(--b);display:flex;align-items:center;justify-content:space-around;flex-shrink:0}
+.adbnb{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 8px;border-radius:10px;min-width:50px;min-height:50px;justify-content:center;background:none;border:none;flex:1}
+.adbnb:active{background:rgba(0,212,170,.08)}
+.adbnb .bi{font-size:19px}
+.adbnb .bl{font-size:9px;color:var(--mut);font-family:var(--font)}
+.adbnb.on .bl{color:var(--acc)}
+
+/* TOAST */
+.toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--card);border:1px solid var(--acc);border-radius:11px;padding:9px 18px;font-size:12.5px;color:var(--acc);z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="atb">
+  <img src="bdai_logo.png" class="atb-logo" onerror="this.style.display='none'">
+  <div class="atb-name" id="adminTitle">BDAi Admin</div>
+  <span class="role-tag" id="roleTag">Loading...</span>
+</div>
+
+<!-- PANELS -->
+<div class="panels">
+
+  <!-- DASHBOARD -->
+  <div class="panel on" id="panel-dash">
+    <div class="pbody">
+      <div class="sgrid">
+        <div class="sbox"><div class="snum" style="color:var(--acc)" id="totalUsers">০</div><div class="slbl">মোট User</div></div>
+        <div class="sbox"><div class="snum" style="color:var(--org2)" id="premUsers">০</div><div class="slbl">Premium</div></div>
+        <div class="sbox"><div class="snum" style="color:var(--acc2)" id="todayActive">০</div><div class="slbl">আজ Active</div></div>
+        <div class="sbox"><div class="snum" style="color:var(--yellow)" id="monthRev">৳০</div><div class="slbl">এই মাস</div></div>
+      </div>
+
+      <div class="sec-head">⏳ Pending Payments</div>
+      <div id="pendingPayments">
+        <div style="padding:14px;text-align:center;font-size:12px;color:var(--mut)">লোড হচ্ছে...</div>
+      </div>
+
+      <div class="sec-head">📊 Quick Actions</div>
+      <div class="arow" onclick="showPanel('users')"><div class="ar-ic" style="background:rgba(0,212,170,.1)">👥</div><div class="ar-main"><div class="ar-title">User Management</div></div><span style="color:var(--mut)">›</span></div>
+      <div class="arow" onclick="showPanel('payment-mng')"><div class="ar-ic" style="background:rgba(255,170,0,.1)">💳</div><div class="ar-main"><div class="ar-title">Payment Numbers</div></div><span style="color:var(--mut)">›</span></div>
+      <div class="arow" onclick="showPanel('knowledge')"><div class="ar-ic" style="background:rgba(124,58,237,.1)">🧠</div><div class="ar-main"><div class="ar-title">Knowledge Box</div><div class="ar-sub" id="kbPending">লোড হচ্ছে...</div></div><span style="color:var(--mut)">›</span></div>
+      <div class="arow" id="saOnlyRow" onclick="showPanel('brand')"><div class="ar-ic" style="background:rgba(245,158,11,.1)">🏷️</div><div class="ar-main"><div class="ar-title">Brand Control</div><div class="ar-sub">Logo, নাম, About</div></div><span style="color:var(--mut)">›</span></div>
+      <div class="arow" onclick="showPanel('welcome-edit')"><div class="ar-ic" style="background:rgba(0,153,255,.1)">📝</div><div class="ar-main"><div class="ar-title">Welcome Message</div></div><span style="color:var(--mut)">›</span></div>
+      <div class="arow" id="saProvidersRow" onclick="showPanel('providers')"><div class="ar-ic" style="background:rgba(201,110,63,.1)">🔄</div><div class="ar-main"><div class="ar-title">AI Sources</div></div><span style="color:var(--mut)">›</span></div>
+      <div class="arow" id="saRolesRow" onclick="showPanel('roles')"><div class="ar-ic" style="background:rgba(245,158,11,.1)">👑</div><div class="ar-main"><div class="ar-title">Admin/Distributor</div><div class="ar-sub">Role management</div></div><span style="color:var(--mut)">›</span></div>
+      <div class="arow" onclick="showPanel('offers')"><div class="ar-ic" style="background:rgba(0,212,170,.1)">🎉</div><div class="ar-main"><div class="ar-title">Offers</div><div class="ar-sub">বিশেষ অফার দিন</div></div><span style="color:var(--mut)">›</span></div>
+      <div class="arow" onclick="showPanel('notify')"><div class="ar-ic" style="background:rgba(255,64,96,.1)">📢</div><div class="ar-main"><div class="ar-title">Notification</div><div class="ar-sub">সব user কে message</div></div><span style="color:var(--mut)">›</span></div>
+    </div>
+  </div>
+
+  <!-- USERS -->
+  <div class="panel" id="panel-users">
+    <div class="pbody">
+      <div style="padding:10px 14px"><input class="ainp" style="margin:0" placeholder="🔍 Email দিয়ে খুঁজুন..." id="userSearch" oninput="searchUsers(this.value)"></div>
+      <div id="userList"><div style="padding:14px;text-align:center;font-size:12px;color:var(--mut)">লোড হচ্ছে...</div></div>
+      <div class="sec-head">Premium Manual Activate</div>
+      <div class="aform">
+        <input class="ainp" id="activateEmail" placeholder="User Email">
+        <select class="asel" id="activatePlan">
+          <option value="1month">৳২৯৯ — ১ মাস</option>
+          <option value="3month">৳৭৯৯ — ৩ মাস</option>
+          <option value="1year">৳২,৯৯৯ — ১ বছর</option>
+        </select>
+        <input class="ainp" id="activateNote" placeholder="Payment reference (optional)">
+        <button class="abtn ab-acc" onclick="activatePremium()">⭐ Premium Activate করুন</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAYMENT MANAGEMENT -->
+  <div class="panel" id="panel-payment-mng">
+    <div class="pbody">
+      <div style="padding:10px 13px;background:rgba(0,212,170,.05);border-bottom:1px solid var(--b);font-size:11px;color:var(--acc)">
+        💡 Admin যার নম্বর assigned তার নম্বরে user payment করবে। Verify তার admin panel এ আসবে।
+      </div>
+      <div class="sec-head">বর্তমান Payment Numbers</div>
+      <div id="payMethodsList" style="padding:10px 13px">
+        <div style="text-align:center;font-size:12px;color:var(--mut);padding:14px">লোড হচ্ছে...</div>
+      </div>
+
+      <div class="sec-head" id="addPaySec">নতুন Payment Method যোগ করুন</div>
+      <div class="aform" id="addPayForm">
+        <select class="asel" id="newPayType">
+          <option value="bkash">💗 bKash</option>
+          <option value="nagad">🟠 Nagad</option>
+          <option value="rocket">💜 Rocket</option>
+          <option value="dbbl">💙 DBBL Mobile</option>
+          <option value="other">📱 অন্যান্য</option>
+        </select>
+        <input class="ainp" id="newPayNumber" placeholder="01XXX-XXXXXX">
+        <input class="ainp" id="newPayHolder" placeholder="Account Holder Name">
+        <input class="ainp" id="newPayNote" placeholder="Note (Personal/Merchant) - optional">
+        <input class="ainp" id="newPayAssign" placeholder="Assigned Admin Email (খালি = সবার জন্য)">
+        <button class="abtn ab-acc" onclick="addPayMethod()">➕ যোগ করুন</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KNOWLEDGE BOX -->
+  <div class="panel" id="panel-knowledge">
+    <div class="pbody">
+      <div style="padding:10px 13px;background:rgba(0,212,170,.05);border-bottom:1px solid var(--b);font-size:11px;color:var(--mut)">AI যে প্রশ্নের উত্তর জানে না সেগুলো এখানে আসে। উত্তর দিলে AI শিখে নেয়।</div>
+      <div class="sec-head" style="color:var(--yellow)">❓ Pending Questions</div>
+      <div id="pendingKB" style="padding:10px 13px">
+        <div style="text-align:center;font-size:12px;color:var(--mut);padding:14px">লোড হচ্ছে...</div>
+      </div>
+      <div class="sec-head" style="color:var(--acc)">✅ Answered</div>
+      <div id="answeredKB" style="padding:10px 13px"></div>
+    </div>
+  </div>
+
+  <!-- BRAND (SA only) -->
+  <div class="panel" id="panel-brand">
+    <div class="pbody">
+      <div style="padding:9px 13px;background:rgba(245,158,11,.05);border-bottom:1px solid var(--b);font-size:10.5px;color:var(--gold)">⚠️ শুধু Super Admin এই section পরিবর্তন করতে পারবেন।</div>
+      <div class="aform" style="padding-top:12px">
+        <label style="font-size:10.5px;color:var(--mut);display:block;margin-bottom:4px">App নাম</label>
+        <input class="ainp" id="brandName" value="BDAi By Azad">
+        <label style="font-size:10.5px;color:var(--mut);display:block;margin-bottom:4px">Tagline</label>
+        <input class="ainp" id="brandTagline" value="বাংলাদেশের প্রথম নিজস্ব AI">
+        <label style="font-size:10.5px;color:var(--mut);display:block;margin-bottom:4px">About BDAi (পুরো)</label>
+        <textarea class="ata" id="brandAbout" style="min-height:80px">BDAi বাংলাদেশের প্রথম মাল্টি-ফাংশনাল AI প্ল্যাটফর্ম।</textarea>
+        <label style="font-size:10.5px;color:var(--mut);display:block;margin-bottom:4px">About (সংক্ষিপ্ত)</label>
+        <input class="ainp" id="brandAboutShort" value="বাংলাদেশের নিজস্ব AI">
+        <div onclick="toast('📸 Logo change')" style="padding:11px;background:var(--bg2);border:1px dashed var(--b);border-radius:9px;text-align:center;font-size:12px;color:var(--mut);cursor:pointer;margin-bottom:9px">📸 Logo পরিবর্তন করুন</div>
+        <button class="abtn ab-gold" onclick="updateBrand()">💾 Brand Update করুন</button>
+      </div>
+
+      <div class="sec-head">⚙️ Icon Customization</div>
+      <div class="aform">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:9px">
+          <div><label style="font-size:10.5px;color:var(--mut)">Chat Icon</label><input class="ainp" style="margin:4px 0 0" id="icChat" value="💬"></div>
+          <div><label style="font-size:10.5px;color:var(--mut)">Image Icon</label><input class="ainp" style="margin:4px 0 0" id="icImage" value="🎨"></div>
+          <div><label style="font-size:10.5px;color:var(--mut)">Code Icon</label><input class="ainp" style="margin:4px 0 0" id="icCode" value="💻"></div>
+          <div><label style="font-size:10.5px;color:var(--mut)">Video Icon</label><input class="ainp" style="margin:4px 0 0" id="icVideo" value="🎬"></div>
+          <div><label style="font-size:10.5px;color:var(--mut)">Vision Icon</label><input class="ainp" style="margin:4px 0 0" id="icVision" value="👁️"></div>
+          <div><label style="font-size:10.5px;color:var(--mut)">Voice Icon</label><input class="ainp" style="margin:4px 0 0" id="icVoice" value="🎤"></div>
+        </div>
+        <button class="abtn ab-acc" onclick="updateIcons()">🎨 Icons Update করুন</button>
+      </div>
+
+      <div class="sec-head">⚙️ App Settings</div>
+      <div style="padding:0 14px 12px">
+        <div class="arow" style="padding:10px 0;border-bottom:1px solid var(--b)">
+          <div class="ar-main"><div class="ar-title" style="font-size:12px">Registration চালু</div></div>
+          <button class="atog on" id="togReg" onclick="toggleSetting('registration',this)"></button>
+        </div>
+        <div class="arow" style="padding:10px 0;border-bottom:1px solid var(--b)">
+          <div class="ar-main"><div class="ar-title" style="font-size:12px">Free Chat Limit/দিন</div></div>
+          <input type="number" value="50" id="limitChat" style="width:60px;background:var(--bg2);border:1px solid var(--b);border-radius:7px;padding:4px 8px;color:var(--txt);text-align:center;font-size:12px" onchange="updateLimit('chat',this.value)">
+        </div>
+        <div class="arow" style="padding:10px 0;border-bottom:1px solid var(--b)">
+          <div class="ar-main"><div class="ar-title" style="font-size:12px">Free Image Limit/দিন</div></div>
+          <input type="number" value="10" id="limitImage" style="width:60px;background:var(--bg2);border:1px solid var(--b);border-radius:7px;padding:4px 8px;color:var(--txt);text-align:center;font-size:12px" onchange="updateLimit('image',this.value)">
+        </div>
+        <div class="arow" style="padding:10px 0;border-bottom:1px solid var(--b)">
+          <div class="ar-main"><div class="ar-title" style="font-size:12px">Premium Price (৳)</div></div>
+          <input type="number" value="299" id="premPrice" style="width:70px;background:var(--bg2);border:1px solid var(--b);border-radius:7px;padding:4px 8px;color:var(--acc);text-align:center;font-size:12px;font-weight:700" onchange="updateLimit('premium_price',this.value)">
+        </div>
+        <div class="arow" style="padding:10px 0">
+          <div class="ar-main"><div class="ar-title" style="font-size:12px">Maintenance Mode</div></div>
+          <button class="atog off" id="togMaint" onclick="toggleSetting('maintenance',this)"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WELCOME MESSAGE -->
+  <div class="panel" id="panel-welcome-edit">
+    <div class="pbody">
+      <div class="aform" style="padding-top:12px">
+        <label style="font-size:10.5px;color:var(--mut);display:block;margin-bottom:4px">সব user এর জন্য Welcome Message:</label>
+        <textarea class="ata" id="welcomeAll" style="min-height:80px" placeholder="সব user দেখবে..."></textarea>
+        <label style="font-size:10.5px;color:var(--mut);display:block;margin-bottom:4px">Free User এর জন্য (আলাদা, optional):</label>
+        <textarea class="ata" id="welcomeFree" style="min-height:60px" placeholder="শুধু Free user দেখবে..."></textarea>
+        <label style="font-size:10.5px;color:var(--mut);display:block;margin-bottom:4px">Premium User এর জন্য (আলাদা, optional):</label>
+        <textarea class="ata" id="welcomePrem" style="min-height:60px" placeholder="শুধু Premium user দেখবে..."></textarea>
+        <button class="abtn ab-acc" onclick="updateWelcome()">✅ Update করুন</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI PROVIDERS -->
+  <div class="panel" id="panel-providers">
+    <div class="pbody">
+      <div style="padding:10px 13px;background:rgba(0,212,170,.05);border-bottom:1px solid var(--b);font-size:11px">
+        <span style="color:var(--acc);font-weight:600">Active Sources: </span>
+        <span style="color:var(--mut)">৩০০+ | Auto health-check | Parallel race</span>
+      </div>
+      <div id="providerList" style="padding:0 0 10px"></div>
+      <div class="sec-head">নতুন Source যোগ করুন</div>
+      <div class="aform">
+        <input class="ainp" id="newProvName" placeholder="Provider নাম">
+        <input class="ainp" id="newProvUrl" placeholder="API URL (g4f class বা endpoint)">
+        <select class="asel" id="newProvType">
+          <option>Chat</option><option>Image</option><option>Video</option><option>Voice</option>
+        </select>
+        <input class="ainp" id="newProvSpeed" placeholder="Speed (যেমন: ১-৩s)">
+        <button class="abtn ab-acc" onclick="addProvider()">➕ Source যোগ করুন</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROLES (SA only) -->
+  <div class="panel" id="panel-roles">
+    <div class="pbody">
+      <div style="padding:9px 13px;background:rgba(245,158,11,.05);border-bottom:1px solid var(--b);font-size:10.5px;color:var(--gold)">👑 শুধু Super Admin নতুন Admin/Distributor তৈরি করতে পারবেন।</div>
+      <div class="sec-head">নতুন Admin/Distributor</div>
+      <div class="aform">
+        <input class="ainp" id="newRoleEmail" placeholder="Gmail address">
+        <select class="asel" id="newRoleType">
+          <option value="admin">🛡️ Admin</option>
+          <option value="distributor">🤝 Distributor</option>
+        </select>
+        <input class="ainp" id="newRoleArea" placeholder="এলাকা (যেমন: বরিশাল, ঢাকা)">
+        <input class="ainp" id="newRoleLimit" type="number" placeholder="Distributor account limit (default: 50)" value="50">
+        <button class="abtn ab-gold" onclick="createRole()">➕ তৈরি করুন</button>
+      </div>
+
+      <div class="sec-head">Distributor Limit Requests</div>
+      <div id="limitRequests" style="padding:10px 13px">
+        <div style="font-size:12px;color:var(--mut)">কোনো request নেই</div>
+      </div>
+
+      <div class="sec-head">বর্তমান Roles</div>
+      <div id="rolesList" style="padding:0 0 10px">
+        <div style="padding:14px;text-align:center;font-size:12px;color:var(--mut)">লোড হচ্ছে...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OFFERS -->
+  <div class="panel" id="panel-offers">
+    <div class="pbody">
+      <div class="aform" style="padding-top:12px">
+        <label style="font-size:10.5px;color:var(--mut);display:block;margin-bottom:4px">Offer চালু আছে?</label>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px">
+          <button class="atog on" id="togOffer" onclick="toggleOffer(this)"></button>
+          <span style="font-size:12px;color:var(--mut)">চালু/বন্ধ</span>
+        </div>
+        <label style="font-size:10.5px;color:var(--mut);display:block;margin-bottom:4px">Offer Title</label>
+        <input class="ainp" id="offerTitle" value="🎉 বিশেষ অফার চলছে!">
+        <label style="font-size:10.5px;color:var(--mut);display:block;margin-bottom:4px">Offer বিবরণ</label>
+        <textarea class="ata" id="offerDesc">এখন ৩ মাসের প্ল্যানে ২০% ছাড়! সীমিত সময়ের জন্য।</textarea>
+        <label style="font-size:10.5px;color:var(--mut);display:block;margin-bottom:4px">Discount % (optional)</label>
+        <input class="ainp" id="offerDiscount" type="number" placeholder="যেমন: 20">
+        <button class="abtn ab-acc" onclick="saveOffer()">💾 Offer Save করুন</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION -->
+  <div class="panel" id="panel-notify">
+    <div class="pbody">
+      <div class="aform" style="padding-top:12px">
+        <label style="font-size:10.5px;color:var(--mut);display:block;margin-bottom:4px">পাঠাবেন কাদের?</label>
+        <select class="asel" id="notifyTarget">
+          <option value="all">সব User</option>
+          <option value="free">শুধু Free User</option>
+          <option value="premium">শুধু Premium User</option>
+        </select>
+        <label style="font-size:10.5px;color:var(--mut);display:block;margin-bottom:4px">Message</label>
+        <textarea class="ata" id="notifyMsg" style="min-height:100px" placeholder="সব user কে message লিখুন..."></textarea>
+        <button class="abtn ab-acc" onclick="sendNotification()">📢 Notification পাঠান</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DISTRIBUTOR PANEL -->
+  <div class="panel" id="panel-distributor">
+    <div class="pbody">
+      <div class="sgrid">
+        <div class="sbox"><div class="snum" style="color:var(--acc)" id="distUsers">০</div><div class="slbl">আমার Users</div></div>
+        <div class="sbox"><div class="snum" style="color:var(--org2)" id="distPrem">০</div><div class="slbl">Premium</div></div>
+        <div class="sbox"><div class="snum" style="color:var(--yellow)" id="distComm">৳০</div><div class="slbl">Commission</div></div>
+        <div class="sbox"><div class="snum" style="color:var(--acc2)" id="distLimit">০/৫০</div><div class="slbl">Limit</div></div>
+      </div>
+      <div class="sec-head">আমার User List</div>
+      <div id="distUserList" style="padding:0 0 10px"></div>
+      <div class="sec-head">Premium Activate</div>
+      <div class="aform">
+        <input class="ainp" id="distEmail" placeholder="User Email">
+        <select class="asel" id="distPlan">
+          <option value="1month">৳২৯৯ — ১ মাস</option>
+          <option value="3month">৳৭৯৯ — ৩ মাস</option>
+        </select>
+        <input class="ainp" id="distPayRef" placeholder="Payment reference">
+        <button class="abtn ab-acc" onclick="distActivate()">⭐ Activate করুন</button>
+      </div>
+      <div class="sec-head">Limit বাড়ানোর Request</div>
+      <div class="aform">
+        <textarea class="ata" id="limitReqMsg" placeholder="কারণ লিখুন..."></textarea>
+        <button class="abtn ab-out" onclick="requestLimit()">📨 Request পাঠান</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /panels -->
+
+<!-- BOTTOM NAV -->
+<div class="adbnav">
+  <button class="adbnb on" onclick="showPanel('dash',this)" id="nb-dash"><div class="bi">📊</div><div class="bl">Dashboard</div></button>
+  <button class="adbnb" onclick="showPanel('users',this)"><div class="bi">👥</div><div class="bl">Users</div></button>
+  <button class="adbnb" onclick="showPanel('payment-mng',this)"><div class="bi">💳</div><div class="bl">Payment</div></button>
+  <button class="adbnb" onclick="showPanel('knowledge',this)"><div class="bi">🧠</div><div class="bl">Knowledge</div></button>
+  <button class="adbnb" onclick="showPanel('brand',this)"><div class="bi">⚙️</div><div class="bl">Settings</div></button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase Admin Logic -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, addDoc, serverTimestamp, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  authDomain: "bdai-by-azad.firebaseapp.com",
+  projectId: "bdai-by-azad",
+  storageBucket: "bdai-by-azad.appspot.com",
+  messagingSenderId: "930945592495",
+  appId: "1:930945592495:android:557ae4f3e73aaf2052f85a"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentAdmin = null;
+let adminRole = null; // 'super_admin', 'admin', 'distributor'
+let adminData = null;
+
+// Auth check
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  currentAdmin = user;
+  await loadAdminRole();
+});
+
+async function loadAdminRole() {
+  try {
+    // Check if super admin
+    const saSnap = await getDoc(doc(db, 'admins', currentAdmin.uid));
+    if (saSnap.exists()) {
+      adminData = saSnap.data();
+      adminRole = adminData.role || 'admin';
+    } else {
+      // Check distributor
+      const distSnap = await getDoc(doc(db, 'distributors', currentAdmin.uid));
+      if (distSnap.exists()) {
+        adminData = distSnap.data();
+        adminRole = 'distributor';
+      } else {
+        // Not admin - redirect
+        alert('❌ Admin access নেই');
+        signOut(auth);
+        window.location.href = 'login.html';
+        return;
+      }
+    }
+    updateAdminUI();
+    loadDashboardData();
+    loadPaymentMethods();
+    loadKnowledgeBox();
+    loadProviders();
+  } catch(e) { console.log(e); }
+}
+
+function updateAdminUI() {
+  const roleTag = document.getElementById('roleTag');
+  const title = document.getElementById('adminTitle');
+
+  if (adminRole === 'super_admin') {
+    roleTag.textContent = '👑 Super Admin';
+    roleTag.className = 'role-tag rt-sa';
+    title.textContent = 'Super Admin Panel';
+  } else if (adminRole === 'admin') {
+    roleTag.textContent = '🛡️ Admin';
+    roleTag.className = 'role-tag rt-a';
+    // Hide SA-only features
+    ['saOnlyRow','saProvidersRow','saRolesRow'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+  } else if (adminRole === 'distributor') {
+    roleTag.textContent = '🤝 Distributor';
+    roleTag.className = 'role-tag rt-d';
+    // Show only distributor panel
+    showPanel('distributor');
+    // Hide non-distributor nav
+    document.querySelectorAll('.adbnb').forEach(b => b.style.display = 'none');
+  }
+}
+
+async function loadDashboardData() {
+  try {
+    // Count users
+    const usersSnap = await getDocs(query(collection(db, 'users'), limit(1000)));
+    const allUsers = usersSnap.docs.map(d => d.data());
+    const premUsers = allUsers.filter(u => u.plan === 'premium');
+    document.getElementById('totalUsers').textContent = allUsers.length.toLocaleString();
+    document.getElementById('premUsers').textContent = premUsers.length;
+    document.getElementById('monthRev').textContent = '৳' + (premUsers.length * 299).toLocaleString();
+    document.getElementById('todayActive').textContent = Math.floor(allUsers.length * 0.1);
+
+    // Pending payments
+    const paySnap = await getDocs(query(collection(db, 'payment_requests'), where('status','==','pending'), limit(20)));
+    const pending = paySnap.docs.map(d => ({id:d.id,...d.data()}));
+    renderPendingPayments(pending);
+  } catch(e) {}
+}
+
+function renderPendingPayments(payments) {
+  const wrap = document.getElementById('pendingPayments');
+  if (!payments.length) { wrap.innerHTML = '<div style="padding:12px 14px;font-size:12px;color:var(--mut)">কোনো pending payment নেই</div>'; return; }
+  wrap.innerHTML = payments.map(p => `
+    <div class="arow">
+      <div class="ar-ic" style="background:rgba(255,170,0,.1)">💳</div>
+      <div class="ar-main">
+        <div class="ar-title">${p.email||'Unknown'}</div>
+        <div class="ar-sub">TXN: ${p.trx_id} • ৳${p.amount} • ${p.plan}</div>
+      </div>
+      <button onclick="verifyPayment('${p.id}','${p.uid}','${p.plan}')" style="padding:5px 10px;background:rgba(0,212,170,.15);border:1px solid rgba(0,212,170,.3);border-radius:7px;cursor:pointer;font-size:10.5px;color:var(--acc);font-family:var(--font)">✅ Verify</button>
+    </div>
+  `).join('');
+}
+
+window.verifyPayment = async function(payId, uid, plan) {
+  try {
+    const expiry = new Date();
+    if (plan === '1month') expiry.setMonth(expiry.getMonth()+1);
+    else if (plan === '3month') expiry.setMonth(expiry.getMonth()+3);
+    else expiry.setFullYear(expiry.getFullYear()+1);
+
+    await updateDoc(doc(db, 'users', uid), {
+      plan: 'premium',
+      premium_expiry: expiry.toISOString(),
+      verified_by: currentAdmin.uid,
+      verified_at: serverTimestamp()
+    });
+    await updateDoc(doc(db, 'payment_requests', payId), { status: 'verified', verified_by: currentAdmin.uid });
+    toast('✅ Premium activated!');
+    loadDashboardData();
+  } catch(e) { toast('❌ Error: ' + e.message); }
+};
+
+async function loadPaymentMethods() {
+  try {
+    const snap = await getDoc(doc(db, 'app_config', 'payment_methods'));
+    const methods = snap.exists() ? (snap.data().methods || []) : [];
+    renderPayMethods(methods);
+  } catch(e) {}
+}
+
+function renderPayMethods(methods) {
+  const wrap = document.getElementById('payMethodsList');
+  if (!methods.length) { wrap.innerHTML = '<div style="font-size:12px;color:var(--mut)">কোনো method নেই। নিচে যোগ করুন।</div>'; return; }
+  const icons = { bkash:'💗', nagad:'🟠', rocket:'💜', dbbl:'💙', other:'📱' };
+  wrap.innerHTML = methods.map((m,i) => `
+    <div class="pmc">
+      <div class="pmc-h">
+        <div class="pmc-ic">${icons[m.type]||'💳'}</div>
+        <div class="pmc-name">${m.name}</div>
+        <span class="badge ${m.active ? 'b-g' : 'b-r'}">${m.active ? 'Active' : 'Disabled'}</span>
+      </div>
+      <div class="pmc-num">${m.number}</div>
+      <div class="pmc-holder">${m.holder}</div>
+      ${m.note ? `<div style="font-size:10.5px;color:var(--mut);margin-top:3px">${m.note}</div>` : ''}
+      ${m.assigned_admin ? `<div style="font-size:10.5px;color:var(--acc2);margin-top:3px">Assigned: ${m.assigned_admin}</div>` : ''}
+      <div class="pmc-acts">
+        <button onclick="togglePayMethod(${i})" class="pmc-btn" style="background:rgba(255,170,0,.1);border-color:rgba(255,170,0,.3);color:var(--yellow)">${m.active ? '⏸ Disable' : '▶️ Enable'}</button>
+        <button onclick="deletePayMethod(${i})" class="pmc-btn" style="background:rgba(255,64,96,.1);border-color:rgba(255,64,96,.3);color:var(--red)">🗑️ Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+window.addPayMethod = async function() {
+  const type = document.getElementById('newPayType').value;
+  const number = document.getElementById('newPayNumber').value.trim();
+  const holder = document.getElementById('newPayHolder').value.trim();
+  const note = document.getElementById('newPayNote').value.trim();
+  const assign = document.getElementById('newPayAssign').value.trim();
+  if (!number || !holder) { toast('⚠️ নম্বর ও নাম দিন'); return; }
+  const names = { bkash:'bKash', nagad:'Nagad', rocket:'Rocket', dbbl:'DBBL Mobile', other:'Other' };
+  try {
+    const snap = await getDoc(doc(db, 'app_config', 'payment_methods'));
+    const methods = snap.exists() ? (snap.data().methods || []) : [];
+    methods.push({ type, name:names[type], number, holder, note, assigned_admin:assign||'', active:true, added_by:currentAdmin.uid, added_at:new Date().toISOString() });
+    await setDoc(doc(db, 'app_config', 'payment_methods'), { methods });
+    toast('✅ Payment method যোগ হয়েছে!');
+    loadPaymentMethods();
+    document.getElementById('newPayNumber').value = '';
+    document.getElementById('newPayHolder').value = '';
+    document.getElementById('newPayNote').value = '';
+    document.getElementById('newPayAssign').value = '';
+  } catch(e) { toast('❌ Error: '+e.message); }
+};
+
+window.togglePayMethod = async function(idx) {
+  try {
+    const snap = await getDoc(doc(db, 'app_config', 'payment_methods'));
+    const methods = snap.exists() ? (snap.data().methods || []) : [];
+    methods[idx].active = !methods[idx].active;
+    await setDoc(doc(db, 'app_config', 'payment_methods'), { methods });
+    toast('✅ Updated!');
+    loadPaymentMethods();
+  } catch(e) {}
+};
+
+window.deletePayMethod = async function(idx) {
+  if (!confirm('Delete করবেন?')) return;
+  try {
+    const snap = await getDoc(doc(db, 'app_config', 'payment_methods'));
+    const methods = snap.exists() ? (snap.data().methods || []) : [];
+    methods.splice(idx, 1);
+    await setDoc(doc(db, 'app_config', 'payment_methods'), { methods });
+    toast('✅ Deleted!');
+    loadPaymentMethods();
+  } catch(e) {}
+};
+
+// Knowledge Box
+async function loadKnowledgeBox() {
+  try {
+    const snap = await getDoc(doc(db, 'knowledge_base', 'questions'));
+    const questions = snap.exists() ? (snap.data().questions || []) : [];
+    const pending = questions.filter(q => !q.answer);
+    const answered = questions.filter(q => q.answer);
+    document.getElementById('kbPending').textContent = pending.length + 'টা নতুন প্রশ্ন';
+    renderKB(pending, 'pendingKB', true);
+    renderKB(answered, 'answeredKB', false);
+  } catch(e) {}
+}
+
+function renderKB(items, id, editable) {
+  const wrap = document.getElementById(id);
+  if (!items.length) { wrap.innerHTML = '<div style="font-size:12px;color:var(--mut)">কোনো প্রশ্ন নেই</div>'; return; }
+  wrap.innerHTML = items.slice(0,10).map((q,i) => `
+    <div class="kbi">
+      <div class="kbq">${q.question} <span style="font-size:9px;color:var(--mut)">(${q.count||1} বার)</span></div>
+      ${editable ? `
+        <textarea style="width:100%;background:var(--bg3);border:1px solid var(--b);border-radius:7px;padding:7px;color:var(--txt);font-family:var(--font);font-size:11px;outline:none;resize:none;min-height:50px;margin-bottom:6px" id="kba-${i}" placeholder="উত্তর লিখুন...">${q.answer||''}</textarea>
+        <button onclick="saveKBAnswer('${q.id}',${i})" style="padding:4px 12px;background:rgba(0,212,170,.15);border:1px solid rgba(0,212,170,.3);border-radius:7px;cursor:pointer;font-size:10.5px;color:var(--acc);font-family:var(--font)">💾 Save</button>
+      ` : `<div class="kba">${q.answer}</div>`}
+    </div>
+  `).join('');
+}
+
+window.saveKBAnswer = async function(qId, idx) {
+  const answer = document.getElementById('kba-'+idx)?.value?.trim();
+  if (!answer) { toast('⚠️ উত্তর লিখুন'); return; }
+  try {
+    const snap = await getDoc(doc(db, 'knowledge_base', 'questions'));
+    const questions = snap.data()?.questions || [];
+    const q = questions.find(x => x.id === qId);
+    if (q) q.answer = answer;
+    await setDoc(doc(db, 'knowledge_base', 'questions'), { questions });
+    toast('✅ Answer saved! AI শিখে নিয়েছে।');
+    loadKnowledgeBox();
+  } catch(e) { toast('❌ Error'); }
+};
+
+// Providers
+async function loadProviders() {
+  try {
+    const snap = await getDoc(doc(db, 'app_config', 'providers'));
+    const providers = snap.exists() ? (snap.data().providers || []) : getDefaultProviders();
+    renderProviders(providers);
+  } catch(e) { renderProviders(getDefaultProviders()); }
+}
+
+function getDefaultProviders() {
+  return [
+    { name:'Blackbox AI', type:'Chat', speed:'১-২s', active:true },
+    { name:'Bing/Copilot', type:'Chat', speed:'১-৩s', active:true },
+    { name:'DeepInfra', type:'Chat', speed:'১-৩s', active:true },
+    { name:'g4f GPT-4o', type:'Chat', speed:'৩-৮s', active:true },
+    { name:'Pollinations', type:'Chat+Image', speed:'৩-৮s', active:true },
+    { name:'Prodia SDXL', type:'Image', speed:'৫-১৫s', active:true },
+    { name:'Runway ML', type:'Video', speed:'৩০-৬০s', active:true },
+    { name:'Whisper', type:'Voice', speed:'১-৩s', active:true },
+  ];
+}
+
+function renderProviders(providers) {
+  const wrap = document.getElementById('providerList');
+  wrap.innerHTML = providers.map((p,i) => `
+    <div style="display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px solid var(--b)">
+      <div style="width:7px;height:7px;border-radius:50%;flex-shrink:0;background:${p.active?'var(--acc)':'var(--mut)'}"></div>
+      <div style="flex:1;font-size:12px">${p.name}</div>
+      <span style="font-size:10px;color:var(--mut)">${p.type}</span>
+      <span style="font-size:10px;color:${p.active?'var(--acc)':'var(--mut)'}">${p.speed}</span>
+      <button class="atog ${p.active?'on':'off'}" onclick="toggleProvider(${i},this)"></button>
+    </div>
+  `).join('');
+}
+
+window.toggleProvider = async function(idx, btn) {
+  btn.classList.toggle('on'); btn.classList.toggle('off');
+  try {
+    const snap = await getDoc(doc(db, 'app_config', 'providers'));
+    const providers = snap.exists() ? snap.data().providers : getDefaultProviders();
+    providers[idx].active = !providers[idx].active;
+    await setDoc(doc(db, 'app_config', 'providers'), { providers });
+    toast('✅ Updated!');
+  } catch(e) {}
+};
+
+window.addProvider = async function() {
+  const name = document.getElementById('newProvName').value.trim();
+  const url = document.getElementById('newProvUrl').value.trim();
+  const type = document.getElementById('newProvType').value;
+  const speed = document.getElementById('newProvSpeed').value.trim() || '?';
+  if (!name) { toast('⚠️ নাম দিন'); return; }
+  try {
+    const snap = await getDoc(doc(db, 'app_config', 'providers'));
+    const providers = snap.exists() ? (snap.data().providers || getDefaultProviders()) : getDefaultProviders();
+    providers.unshift({ name, url, type, speed, active:true });
+    await setDoc(doc(db, 'app_config', 'providers'), { providers });
+    toast('✅ নতুন source যোগ হয়েছে!');
+    loadProviders();
+    document.getElementById('newProvName').value = '';
+    document.getElementById('newProvUrl').value = '';
+  } catch(e) { toast('❌ Error: '+e.message); }
+};
+
+// Brand
+window.updateBrand = async function() {
+  if (adminRole !== 'super_admin') { toast('⚠️ শুধু Super Admin'); return; }
+  try {
+    const snap = await getDoc(doc(db, 'app_config', 'settings'));
+    const cfg = snap.exists() ? snap.data() : {};
+    await setDoc(doc(db, 'app_config', 'settings'), {
+      ...cfg,
+      brand_name: document.getElementById('brandName').value,
+      tagline: document.getElementById('brandTagline').value,
+      about: document.getElementById('brandAbout').value,
+      about_short: document.getElementById('brandAboutShort').value,
+      updated_at: serverTimestamp()
+    });
+    toast('✅ Brand updated!');
+  } catch(e) { toast('❌ Error: '+e.message); }
+};
+
+window.updateIcons = async function() {
+  try {
+    const snap = await getDoc(doc(db, 'app_config', 'settings'));
+    const cfg = snap.exists() ? snap.data() : {};
+    await setDoc(doc(db, 'app_config', 'settings'), {
+      ...cfg,
+      icons: {
+        chat: document.getElementById('icChat').value,
+        image: document.getElementById('icImage').value,
+        code: document.getElementById('icCode').value,
+        video: document.getElementById('icVideo').value,
+        vision: document.getElementById('icVision').value,
+        voice: document.getElementById('icVoice').value,
+      }
+    });
+    toast('✅ Icons updated!');
+  } catch(e) { toast('❌ Error'); }
+};
+
+window.updateWelcome = async function() {
+  try {
+    const snap = await getDoc(doc(db, 'app_config', 'settings'));
+    const cfg = snap.exists() ? snap.data() : {};
+    await setDoc(doc(db, 'app_config', 'settings'), {
+      ...cfg,
+      welcome_msg: document.getElementById('welcomeAll').value,
+      welcome_msg_free: document.getElementById('welcomeFree').value,
+      welcome_msg_premium: document.getElementById('welcomePrem').value,
+    });
+    toast('✅ Welcome message updated!');
+  } catch(e) { toast('❌ Error'); }
+};
+
+// Users
+window.searchUsers = async function(q) {
+  if (q.length < 3) return;
+  try {
+    const snap = await getDocs(collection(db, 'users'));
+    const users = snap.docs.map(d => d.data()).filter(u => u.email?.includes(q) || u.name?.includes(q));
+    renderUsers(users);
+  } catch(e) {}
+};
+
+function renderUsers(users) {
+  const wrap = document.getElementById('userList');
+  wrap.innerHTML = users.slice(0,20).map(u => `
+    <div class="arow">
+      <div class="ar-ic" style="background:rgba(0,212,170,.1)">👤</div>
+      <div class="ar-main">
+        <div class="ar-title">${u.name||'User'}</div>
+        <div class="ar-sub">${u.email||''}</div>
+      </div>
+      <span class="badge ${u.plan==='premium'?'b-g':'b-y'}">${u.plan==='premium'?'Premium':'Free'}</span>
+    </div>
+  `).join('');
+}
+
+window.activatePremium = async function() {
+  const email = document.getElementById('activateEmail').value.trim();
+  const plan = document.getElementById('activatePlan').value;
+  if (!email) { toast('⚠️ Email দিন'); return; }
+  try {
+    const snap = await getDocs(query(collection(db, 'users'), where('email','==',email)));
+    if (snap.empty) { toast('❌ User পাওয়া যায়নি'); return; }
+    const user = snap.docs[0];
+    const expiry = new Date();
+    if (plan === '1month') expiry.setMonth(expiry.getMonth()+1);
+    else if (plan === '3month') expiry.setMonth(expiry.getMonth()+3);
+    else expiry.setFullYear(expiry.getFullYear()+1);
+    await updateDoc(doc(db, 'users', user.id), {
+      plan: 'premium',
+      premium_expiry: expiry.toISOString(),
+      verified_by: currentAdmin.uid
+    });
+    toast('✅ Premium activated! User কে notification যাবে।');
+    document.getElementById('activateEmail').value = '';
+  } catch(e) { toast('❌ Error: '+e.message); }
+};
+
+// Roles
+window.createRole = async function() {
+  if (adminRole !== 'super_admin') { toast('⚠️ শুধু Super Admin'); return; }
+  const email = document.getElementById('newRoleEmail').value.trim();
+  const type = document.getElementById('newRoleType').value;
+  const area = document.getElementById('newRoleArea').value.trim();
+  const limit = parseInt(document.getElementById('newRoleLimit').value) || 50;
+  if (!email) { toast('⚠️ Email দিন'); return; }
+  try {
+    const coll = type === 'admin' ? 'admins' : 'distributors';
+    await addDoc(collection(db, coll), {
+      email, type, area, limit, created_by: currentAdmin.uid,
+      created_at: serverTimestamp(), active: true
+    });
+    toast('✅ নতুন ' + type + ' তৈরি হয়েছে!');
+    document.getElementById('newRoleEmail').value = '';
+  } catch(e) { toast('❌ Error: '+e.message); }
+};
+
+// Distributor
+window.distActivate = async function() {
+  const email = document.getElementById('distEmail').value.trim();
+  const plan = document.getElementById('distPlan').value;
+  if (!email) { toast('⚠️ Email দিন'); return; }
+  try {
+    const snap = await getDocs(query(collection(db, 'users'), where('email','==',email)));
+    if (snap.empty) { toast('❌ User নেই'); return; }
+    const user = snap.docs[0];
+    const expiry = new Date();
+    if (plan === '1month') expiry.setMonth(expiry.getMonth()+1);
+    else expiry.setMonth(expiry.getMonth()+3);
+    await updateDoc(doc(db, 'users', user.id), {
+      plan:'premium', premium_expiry:expiry.toISOString(),
+      activated_by_dist: currentAdmin.uid
+    });
+    toast('✅ Premium activated!');
+    document.getElementById('distEmail').value = '';
+  } catch(e) { toast('❌ Error: '+e.message); }
+};
+
+window.requestLimit = async function() {
+  const msg = document.getElementById('limitReqMsg').value.trim();
+  if (!msg) return;
+  try {
+    await addDoc(collection(db, 'limit_requests'), {
+      dist_uid: currentAdmin.uid,
+      dist_email: currentAdmin.email,
+      message: msg,
+      status: 'pending',
+      created_at: serverTimestamp()
+    });
+    toast('✅ Request পাঠানো হয়েছে!');
+    document.getElementById('limitReqMsg').value = '';
+  } catch(e) { toast('❌ Error'); }
+};
+
+// Offer
+window.saveOffer = async function() {
+  try {
+    const snap = await getDoc(doc(db, 'app_config', 'settings'));
+    const cfg = snap.exists() ? snap.data() : {};
+    await setDoc(doc(db, 'app_config', 'settings'), {
+      ...cfg,
+      offer_active: document.getElementById('togOffer').classList.contains('on'),
+      offer_text: document.getElementById('offerDesc').value,
+      offer_title: document.getElementById('offerTitle').value,
+      offer_discount: document.getElementById('offerDiscount').value,
+    });
+    toast('✅ Offer saved!');
+  } catch(e) { toast('❌ Error'); }
+};
+
+window.toggleOffer = function(btn) {
+  btn.classList.toggle('on'); btn.classList.toggle('off');
+};
+
+// Notification
+window.sendNotification = async function() {
+  const msg = document.getElementById('notifyMsg').value.trim();
+  if (!msg) { toast('⚠️ Message লিখুন'); return; }
+  try {
+    await addDoc(collection(db, 'notifications'), {
+      message: msg,
+      target: document.getElementById('notifyTarget').value,
+      sent_by: currentAdmin.uid,
+      sent_at: serverTimestamp()
+    });
+    toast('✅ Notification পাঠানো হয়েছে!');
+    document.getElementById('notifyMsg').value = '';
+  } catch(e) { toast('❌ Error'); }
+};
+
+// Settings
+window.toggleSetting = async function(key, btn) {
+  btn.classList.toggle('on'); btn.classList.toggle('off');
+  const val = btn.classList.contains('on');
+  try {
+    const snap = await getDoc(doc(db, 'app_config', 'settings'));
+    const cfg = snap.exists() ? snap.data() : {};
+    await setDoc(doc(db, 'app_config', 'settings'), { ...cfg, [key]: val });
+    toast('✅ Saved!');
+  } catch(e) {}
+};
+
+window.updateLimit = async function(key, val) {
+  try {
+    const snap = await getDoc(doc(db, 'app_config', 'settings'));
+    const cfg = snap.exists() ? snap.data() : {};
+    const limits = cfg.limits || {};
+    limits[key] = parseInt(val);
+    await setDoc(doc(db, 'app_config', 'settings'), { ...cfg, limits });
+    toast('✅ Limit updated!');
+  } catch(e) {}
+};
+
+// Nav
+window.showPanel = function(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.adbnb').forEach(b => b.classList.remove('on'));
+  const el = document.getElementById('panel-'+id);
+  if (el) el.classList.add('on');
+  if (btn) btn.classList.add('on');
+};
+
+window.toast = function(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+};
+</script>
+</body>
+</html>

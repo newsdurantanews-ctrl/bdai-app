@@ -1,0 +1,15 @@
+<resources>
+    <style name="Theme.BDAi" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#c96e3f</item>
+        <item name="colorPrimaryVariant">#a85830</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="android:windowBackground">#faf8f6</item>
+        <item name="android:statusBarColor">#c96e3f</item>
+        <item name="android:navigationBarColor">#faf8f6</item>
+    </style>
+    
+    <style name="Theme.BDAi.Splash" parent="Theme.BDAi">
+        <item name="android:windowBackground">@drawable/splash_bg</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+</resources>
